@@ -1,0 +1,10 @@
+services:
+  idor-lab:
+    build: .
+    container_name: idor-lab
+    ports:
+      - "5097:5097"
+    environment:
+      LAB_HOST: "0.0.0.0"
+      LAB_RESET: "1"
+    restart: unless-stopped

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card hero">
+  <div class="hero-box">
+    <div class="hero-title">IDOR Lab — kategory paling sering dibayar di Bug Bounty</div>
+    <div class="hero-sub">Server memakai <b style="color:var(--purple)">object reference (id) dari input</b> tanpa memverifikasi bahwa <b>sesi yang minta = pemilik object</b>. Ini bug #1 paling banyak ditemukan &amp; dibayar di program besar: horizontal (profil user lain), vertical (endpoint admin), mass-export id array, sampai <b>IDOR → ATO</b>.</div>
+    <div class="hero-meta">
+      <span class="pill pill-red">Sesi aktif: <b>attacker</b> (id=3, role user)</span>
+      <span class="pill pill-orange">Korban: <b>victim id=2</b> · Target: <b>admin id=1</b> (flag)</span>
+      <span class="pill pill-green">4 skenario RENTAN/FIXED + endpoint curl</span>
+    </div>
+    <div class="session-row">
+      <span>Platform: <b class="cyan">NeoBank — portal internal</b></span>
+      <span>Semua exploit jalan di <b class="green">server</b></span>
+    </div>
+  </div>
+</div>
+
+{% for s in ['s1','s2','s3','s4'] %}
+{% set m = modes[s] %}
+<div class="card sc-card" id="sc-{{ s }}">
+  <div class="sc-head">
+    <div class="sc-badge s{{ s }}">{{ loop.index }}</div>
+    <div class="sc-info">
+      <div class="sc-title">{{ {'s1':'1️⃣ Horizontal IDOR — baca profil REKAN user lain (id 2)','s2':'2️⃣ Vertical IDOR — endpoint admin tanpa cek role','s3':'3️⃣ Mass-IDOR export — array user_ids sembarang diborong','s4':'4️⃣ IDOR → ATO — ganti email korban via user_id di body'}[s] }}</div>
+      <div class="sc-desc">{{ {'s1':'GET /api/v1/profile/2 dari sesi attacker. Tanpa pengecekan kepemilikan, endpoint membuka profil milik user lain (email, phone, password hash). Bug dengan payout tertinggi & paling umum.','s2':'Endpoint administrasi /api/v1/admin/users dipanggil akun biasa. Server tidak memeriksa role → attacker dapat list semua user + secret admin + flag. Privilege escalation vertikal.','s3':'Fitur export menerima array id di body POST /api/v1/export {"user_ids":[1,2,3]}. Tanpa binding ke sesi & limit, seluruh dokumen user ditarik dalam satu request (mass assignment object reference).','s4':'Update profil tidak memaksa user_id dari sesi — attacker kirim "user_id": 2 + email miliknya → EMAIL VICTIM BERUBAH jadi milik attacker → reset password → masuk akun victim. IDOR paling parah: ATO.'}[s] }}</div>
+    </div>
+    <button class="toggle {{ 'vuln' if m else 'fixed' }}" data-sc="{{ s }}">
+      <i class="fa-solid {{ 'fa-bomb' if m else 'fa-shield' }}"></i> {{ 'RENTAN' if m else 'FIXED' }}
+    </button>
+  </div>
+  <div class="sc-body">
+    <div class="poc-actions">
+      <button class="btn-run" data-poc="{{ s }}"><i class="fa-solid fa-radiation"></i> Jalankan Exploit</button>
+      <a class="btn-link" href="/run/{{ s }}"><i class="fa-solid fa-wand-magic-sparkles"></i> Buka Langkah Manual</a>
+    </div>
+    <pre class="poc-out" id="out-{{ s }}"><span class="dim">▶ klik "Jalankan Exploit" — jejak tercatat di Logs.</span></pre>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

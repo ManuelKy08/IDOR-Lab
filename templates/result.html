@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Email Lab — {{ label }}{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="sc-title">{{ label }}</div>
+  <div class="pill {{ 'pill-red' if d.ok else 'pill-green' }}" style="margin:8px 0">
+    {{ '⚡ RENTAN — FLAG bocor' if d.ok else '🛡️ Diblokir (FIXED)' }}
+  </div>
+  <pre class="poc-out">{% for l in d.steps %}{{ l }}
+{% endfor %}{% if d.flag %}<span class="flag">🏁 FLAG: {{ d.flag }}</span>{% endif %}</pre>
+  <p><a class="btn-link" href="/"><i class="fa-solid fa-arrow-left"></i> ← kembali ke dashboard</a></p>
+</div>
+{% endblock %}
